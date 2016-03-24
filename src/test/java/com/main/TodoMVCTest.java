@@ -2,8 +2,6 @@ package com.main;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -14,6 +12,7 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.WebDriverRunner.url;
 import static com.main.TodoMVCTest.TaskType.*;
 
 /**
@@ -21,20 +20,10 @@ import static com.main.TodoMVCTest.TaskType.*;
  */
 public class TodoMVCTest {
 
-    @Before
-    public void openPage() {
-        open("https://todomvc4tasj.herokuapp.com/");
-    }
-
-    @After
-    public void clearData() {
-        executeJavaScript("localStorage.clear()");
-    }
-
     @Test
     public void testTaskLifeCycle() {
 
-        add("1");
+        given(aTask("1", ACTIVE));
         startEdit("1", "1 edited").pressEnter();
         assertTasks("1 edited");
 
@@ -82,7 +71,6 @@ public class TodoMVCTest {
     public void testReopenAtAll() {
         given(aTask("1", COMPLETED), aTask("2", ACTIVE));
 
-        //reopen
         toggle("1");
         assertTasks("1", "2");
         assertItemLeft(2);
@@ -119,7 +107,7 @@ public class TodoMVCTest {
         given(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited");
-        filterActive();
+        newTodo.click();
         assertVisibleTasks("1 edited");
         assertItemLeft(1);
     }
@@ -134,7 +122,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEmptyingEditedTextAtAll() {
+    public void testDeleteByEmptyingEditedTextAtAll() {
         given(aTask("1", ACTIVE));
 
         startEdit("1", "").pressEnter();
@@ -162,82 +150,85 @@ public class TodoMVCTest {
 
     @Test
     public void testCompleteAtActive() {
-        givenAtActive(aTask("1", ACTIVE));
+        givenAtActive(aTask("1", COMPLETED), aTask("2", ACTIVE));
 
-        toggle("1");
+        toggle("2");
         assertNoVisibleTasks();
         assertItemLeft(0);
     }
 
     @Test
     public void testReopenAllAtActive() {
-        givenAtActive(COMPLETED, "1", "2");
+        givenAtActive(aTask("1", ACTIVE), aTask("2", COMPLETED));
 
         toggleAll();
-        assertVisibleTasks("1", "2");
-        assertItemLeft(2);
+        assertNoVisibleTasks();
+        assertItemLeft(0);
     }
 
     @Test
     public void testEditCancelledAtActive() {
-        givenAtActive(aTask("1", ACTIVE));
+        givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited cancelled").pressEscape();
-        assertTasks("1");
-        assertItemLeft(1);
+        assertTasks("1", "2");
+        assertItemLeft(2);
     }
 
     @Test
     public void testClearCompletedAtActive() {
-        givenAtActive(COMPLETED, "1", "2");
+        givenAtActive(aTask("1", ACTIVE), aTask("2", COMPLETED));
 
         clearCompleted();
-        assertNoVisibleTasks();
+        assertVisibleTasks("1");
+        assertItemLeft(1);
     }
 
     @Test
     public void testEditByClickOutsideAtActive() {
-        givenAtActive(aTask("1", ACTIVE));
+        givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited");
-        filterAll();
-        assertTasks("1 edited");
-        assertItemLeft(1);
+        newTodo.click();
+        assertTasks("1 edited", "2");
+        assertItemLeft(2);
     }
 
     @Test
     public void testEditByClickTabAtActive() {
-        givenAtActive(aTask("1", ACTIVE));
+        givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited").pressTab();
-        assertVisibleTasks("1 edited");
-        assertItemLeft(1);
+        assertVisibleTasks("1 edited", "2");
+        assertItemLeft(2);
     }
 
     @Test
-    public void testEmptyingEditedTextAtActive() {
-        givenAtActive(aTask("1", ACTIVE));
+    public void testDeleteByEmptyingEditedTextAtActive() {
+        givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "").pressEnter();
-        assertNoTasks();
+        assertVisibleTasks("2");
+        assertItemLeft(1);
     }
 
     // *** Completed filter ***
 
     @Test
     public void testAddAtCompleted() {
-        givenAtCompleted(aTask("1", COMPLETED));
+        givenAtCompleted(aTask("1", ACTIVE));
+        add("2");
 
-        assertTasks("1");
-        assertItemLeft(0);
+        assertNoVisibleTasks();
+        assertItemLeft(2);
     }
 
     @Test
     public void testEditAtCompleted() {
-        givenAtCompleted(aTask("1", COMPLETED));
+        givenAtCompleted(COMPLETED, "1", "2");
 
-        startEdit("1", "1 edited").pressEnter();
-        assertVisibleTasks("1 edited");
+        startEdit("2", "2 edited").pressEnter();
+        assertVisibleTasks("1", "2 edited");
         assertItemLeft(0);
     }
 
@@ -259,13 +250,13 @@ public class TodoMVCTest {
         assertItemLeft(1);
     }
 
-    @Test //test on one type
+    @Test
     public void testReopenAllAtCompleted() {
-        givenAtCompleted(COMPLETED, "1", "2");
+        givenAtCompleted(aTask("1", ACTIVE), aTask("2", ACTIVE), aTask("3", COMPLETED));
 
         toggleAll();
-        assertNoVisibleTasks();
-        assertItemLeft(2);
+        assertVisibleTasks("1", "2", "3");
+        assertItemLeft(0);
     }
 
     @Test
@@ -282,7 +273,7 @@ public class TodoMVCTest {
         givenAtCompleted(aTask("1", COMPLETED));
 
         startEdit("1", "1 edited");
-        filterAll();
+        newTodo.click();
         assertTasks("1 edited");
         assertItemLeft(0);
     }
@@ -297,7 +288,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEmptyingEditedTextAtCompleted() {
+    public void testDeleteByEmptyingEditedTextAtCompleted() {
         givenAtCompleted(aTask("1", COMPLETED));
 
         startEdit("1", "").pressEnter();
@@ -306,14 +297,16 @@ public class TodoMVCTest {
 
     @Test
     public void testDeleteAtCompleted() {
-        givenAtCompleted(aTask("1", COMPLETED));
+        givenAtCompleted(aTask("1", COMPLETED), aTask("2", ACTIVE));
 
         delete("1");
-        assertNoTasks();
+        assertNoVisibleTasks();
+        assertItemLeft(1);
     }
 
 
     ElementsCollection tasks = $$("#todo-list li");
+    SelenideElement newTodo = $("#new-todo");
 
     private void add(String... taskTexts) {
         for (String text : taskTexts) {
@@ -374,11 +367,27 @@ public class TodoMVCTest {
         $("#todo-count>strong").shouldHave(exactText(Integer.toString(numberOfTasks)));
     }
 
+    private void ensureCurrentUrl(){
+        if(!url().equals("https://todomvc4tasj.herokuapp.com/")){
+            open("https://todomvc4tasj.herokuapp.com/");
+        }
+    } // instead of using @Before for opening url
+
 
     //  ******* Implementing Precondition-helpers *******
 
     public enum TaskType {
-        ACTIVE, COMPLETED
+        ACTIVE("false"), COMPLETED("true");
+
+        private String flag;
+
+        TaskType(String flag) {
+            this.flag = flag;
+        }
+
+        public String getFlag() {
+            return flag;
+        }
     }
 
     public class Task {
@@ -408,7 +417,7 @@ public class TodoMVCTest {
     private void givenAtAll(TaskType mainType, String... taskTexts) {
         Task[] tasks = new Task[taskTexts.length];
         for (int i = 0; i < taskTexts.length; i++) {
-            tasks[i] = new Task(taskTexts[i], mainType);
+            tasks[i] = aTask(taskTexts[i], mainType);
         }
         given(tasks);
     }
@@ -424,10 +433,12 @@ public class TodoMVCTest {
     }
 
     private void given(Task... tasks) {
+        ensureCurrentUrl();
+
         String JavaS = "localStorage.setItem('todos-troopjs', '[";
 
         for (Task task : tasks) {
-            JavaS += "{\"completed\":" + ((ACTIVE == task.taskType) ? "false" : "true") + ", \"title\":\"" + task.taskText + "\"},";
+            JavaS += "{\"completed\":" + task.taskType.getFlag() + ", \"title\":\"" + task.taskText + "\"},";
         }
         if (tasks.length > 0) {
             JavaS = JavaS.substring(0, (JavaS.length() - 1));
