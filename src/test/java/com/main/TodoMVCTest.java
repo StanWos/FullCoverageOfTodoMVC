@@ -23,7 +23,7 @@ public class TodoMVCTest {
     @Test
     public void testTaskLifeCycle() {
 
-        given();
+        givenAtAll();
         add("1");
         startEdit("1", "1 edited").pressEnter();
         assertTasks("1 edited");
@@ -52,7 +52,7 @@ public class TodoMVCTest {
 
     @Test
     public void testCompleteAtAll() {
-        given(aTask("1", ACTIVE));
+        givenAtAll(aTask("1", ACTIVE));
 
         toggle("1");
         assertTasks("1");
@@ -70,7 +70,7 @@ public class TodoMVCTest {
 
     @Test
     public void testReopenAtAll() {
-        given(aTask("1", COMPLETED), aTask("2", ACTIVE));
+        givenAtAll(aTask("1", COMPLETED), aTask("2", ACTIVE));
 
         toggle("1");
         assertTasks("1", "2");
@@ -88,7 +88,7 @@ public class TodoMVCTest {
 
     @Test
     public void testEditCancelledAtAll() {
-        given(aTask("1", ACTIVE));
+        givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited cancelled").pressEscape();
         assertTasks("1");
@@ -105,7 +105,7 @@ public class TodoMVCTest {
 
     @Test
     public void testEditByClickOutsideAtAll() {
-        given(aTask("1", ACTIVE));
+        givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited");
         newTodo.click();
@@ -115,7 +115,7 @@ public class TodoMVCTest {
 
     @Test
     public void testEditByClickTabAtAll() {
-        given(aTask("1", ACTIVE));
+        givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited").pressTab();
         assertVisibleTasks("1 edited");
@@ -124,7 +124,7 @@ public class TodoMVCTest {
 
     @Test
     public void testDeleteByEmptyingEditedTextAtAll() {
-        given(aTask("1", ACTIVE));
+        givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "").pressEnter();
         assertNoTasks();
@@ -308,8 +308,8 @@ public class TodoMVCTest {
     // *** Changing filters
 
     @Test
-    public void fromCompletedToAll(){
-        givenAtCompleted(aTask("1", COMPLETED));
+    public void fromActiveToAll() {
+        givenAtActive(aTask("1", COMPLETED));
 
         filterAll();
         assertTasks("1");
@@ -317,8 +317,8 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void fromAllToActive(){
-        given(aTask("1", ACTIVE), aTask("2", COMPLETED));
+    public void fromCompletedToActive() {
+        givenAtCompleted(aTask("1", ACTIVE), aTask("2", COMPLETED));
 
         filterActive();
         assertVisibleTasks("1");
@@ -326,8 +326,8 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void fromActiveToCompleted(){
-        givenAtActive(aTask("1", COMPLETED));
+    public void fromAllAtCompleted() {
+        givenAtAll(aTask("1", COMPLETED));
 
         filterCompleted();
         assertVisibleTasks("1");
@@ -397,8 +397,8 @@ public class TodoMVCTest {
         $("#todo-count>strong").shouldHave(exactText(Integer.toString(numberOfTasks)));
     }
 
-    private void ensureCurrentUrl(){
-        if(!url().equals("https://todomvc4tasj.herokuapp.com/")){
+    private void ensureCurrentUrl() {
+        if (!url().equals("https://todomvc4tasj.herokuapp.com/")) {
             open("https://todomvc4tasj.herokuapp.com/");
         }
     } // instead of using @Before for opening url
@@ -435,12 +435,12 @@ public class TodoMVCTest {
     }
 
     private void givenAtActive(Task... tasks) {
-        given(tasks);
+        givenAtAll(tasks);
         filterActive();
     }
 
     private void givenAtCompleted(Task... tasks) {
-        given(tasks);
+        givenAtAll(tasks);
         filterCompleted();
     }
 
@@ -449,7 +449,7 @@ public class TodoMVCTest {
         for (int i = 0; i < taskTexts.length; i++) {
             tasks[i] = aTask(taskTexts[i], mainType);
         }
-        given(tasks);
+        givenAtAll(tasks);
     }
 
     private void givenAtActive(TaskType mainType, String... taskTexts) {
@@ -462,7 +462,7 @@ public class TodoMVCTest {
         filterCompleted();
     }
 
-    private void given(Task... tasks) {
+    private void givenAtAll(Task... tasks) {
         ensureCurrentUrl();
 
         String JavaS = "localStorage.setItem('todos-troopjs', '[";
