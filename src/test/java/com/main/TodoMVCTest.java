@@ -23,7 +23,8 @@ public class TodoMVCTest {
     @Test
     public void testTaskLifeCycle() {
 
-        given(aTask("1", ACTIVE));
+        given();
+        add("1");
         startEdit("1", "1 edited").pressEnter();
         assertTasks("1 edited");
 
@@ -304,13 +305,42 @@ public class TodoMVCTest {
         assertItemLeft(1);
     }
 
+    // *** Changing filters
+
+    @Test
+    public void fromCompletedToAll(){
+        givenAtCompleted(aTask("1", COMPLETED));
+
+        filterAll();
+        assertTasks("1");
+        assertItemLeft(0);
+    }
+
+    @Test
+    public void fromAllToActive(){
+        given(aTask("1", ACTIVE), aTask("2", COMPLETED));
+
+        filterActive();
+        assertVisibleTasks("1");
+        assertItemLeft(1);
+    }
+
+    @Test
+    public void fromActiveToCompleted(){
+        givenAtActive(aTask("1", COMPLETED));
+
+        filterCompleted();
+        assertVisibleTasks("1");
+        assertItemLeft(0);
+    }
+
 
     ElementsCollection tasks = $$("#todo-list li");
     SelenideElement newTodo = $("#new-todo");
 
     private void add(String... taskTexts) {
         for (String text : taskTexts) {
-            $("#new-todo").setValue(text).pressEnter();
+            newTodo.setValue(text).pressEnter();
         }
     }
 
