@@ -104,7 +104,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickOutsideAtAll() {
+    public void testEditByPressOutsideAtAll() {
         givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited");
@@ -114,7 +114,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickTabAtAll() {
+    public void testEditByPressTabAtAll() {
         givenAtAll(aTask("1", ACTIVE));
 
         startEdit("1", "1 edited").pressTab();
@@ -186,7 +186,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickOutsideAtActive() {
+    public void testEditByPressOutsideAtActive() {
         givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited");
@@ -196,7 +196,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickTabAtActive() {
+    public void testEditByPressTabAtActive() {
         givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited").pressTab();
@@ -218,8 +218,8 @@ public class TodoMVCTest {
     @Test
     public void testAddAtCompleted() {
         givenAtCompleted(aTask("1", ACTIVE));
-        add("2");
 
+        add("2");
         assertNoVisibleTasks();
         assertItemLeft(2);
     }
@@ -270,7 +270,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickOutsideAtCompleted() {
+    public void testEditByPressOutsideAtCompleted() {
         givenAtCompleted(aTask("1", COMPLETED));
 
         startEdit("1", "1 edited");
@@ -280,7 +280,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByClickTabAtCompleted() {
+    public void testEditByPressTabAtCompleted() {
         givenAtCompleted(aTask("1", COMPLETED));
 
         startEdit("1", "1 edited").pressTab();
