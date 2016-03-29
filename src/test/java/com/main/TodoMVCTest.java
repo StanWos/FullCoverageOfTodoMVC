@@ -186,7 +186,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByPressOutsideAtActive() {
+    public void testEditByClickOutsideAtActive() {
         givenAtActive(ACTIVE, "1", "2");
 
         startEdit("1", "1 edited");
@@ -270,7 +270,7 @@ public class TodoMVCTest {
     }
 
     @Test
-    public void testEditByPressOutsideAtCompleted() {
+    public void testEditByClickOutsideAtCompleted() {
         givenAtCompleted(aTask("1", COMPLETED));
 
         startEdit("1", "1 edited");
